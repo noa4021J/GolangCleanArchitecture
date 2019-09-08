@@ -1,8 +1,8 @@
-#Golang_CleanArchitecture SampleApp
+## Golang_CleanArchitecture SampleApp
 This is an simple example of Golang application implemented in the Clean Architecture.
 
-#Installation
+## Installation
 
-#Using
+## Using
 
 
