@@ -1,0 +1,11 @@
+# Editor Config
+.idea/*
+*.bak
+
+# Binaries
+main
+*.exe
+
+# DS_Store
+.DS_Store
+
