@@ -6,21 +6,21 @@ import (
 	"net/http"
 
 	"CleanArchitecture_SampleApp/infrastructure/api/dcontext"
-	"CleanArchitecture_SampleApp/infrastructure/datastore"
 	"CleanArchitecture_SampleApp/infrastructure/server/response"
 	"CleanArchitecture_SampleApp/interface/database"
 )
 
 type middleware struct {
-	db *datastore.ConnectedSql
+	userRepository database.UserRepository
 }
 
 type MiddleWare interface {
 	UserAuthorize(nextFunc http.HandlerFunc) http.HandlerFunc
 }
 
-func NewMiddleWare(db *datastore.ConnectedSql) MiddleWare {
-	return &middleware{db: db}
+func NewMiddleWare(db database.ConnectedSql) MiddleWare {
+	return &middleware{
+		userRepository: database.NewUserRepository(db)}
 }
 
 //Headerにあるx-tokenからユーザーを特定して情報を保存する、通信の前処理
@@ -40,14 +40,9 @@ func (mw *middleware) UserAuthorize(nextFunc http.HandlerFunc) http.HandlerFunc 
 		}
 
 		// データベースから認証トークンに紐づくユーザの情報を取得
-		row := mw.db.QueryRow("SELECT * FROM user WHERE auth_token=?", token)
-		if row == nil {
-			response.BadRequest(writer, "User is not found: Not matching token found")
-		}
-
-		user, err := database.ConvertToUser(row)
+		user, err := mw.userRepository.SelectByAuthToken(token)
 		if err != nil {
-			return
+			response.BadRequest(writer, "User is not found: Not matching token found")
 		}
 
 		// userIdをContextへ保存して以降の処理に利用する

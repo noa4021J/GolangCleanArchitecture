@@ -1,6 +1,7 @@
 package service
 
 import (
+	"CleanArchitecture_SampleApp/domain"
 	"CleanArchitecture_SampleApp/usecase/repository"
 	"log"
 
@@ -36,8 +37,14 @@ func (authService *authService) CreateUser(userName *string) (*string, error) {
 	}
 	authTokenString := authToken.String()
 
+	user := domain.User{
+		UserID:    userIDString,
+		AuthToken: authTokenString,
+		Name:      *userName,
+	}
+
 	// データベースにユーザデータを登録する
-	err = authService.UserRepository.Insert(userIDString, authTokenString, *userName)
+	err = authService.UserRepository.Insert(user)
 	if err != nil {
 		log.Println(err)
 		return nil, err

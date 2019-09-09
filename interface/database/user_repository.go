@@ -11,7 +11,7 @@ type userRepository struct {
 }
 
 type UserRepository interface {
-	Insert(userID, authToken, name string) error
+	Insert(user domain.User) error
 	SelectByAuthToken(authToken string) (*domain.User, error)
 	SelectByPrimaryKey(userID string) (*domain.User, error)
 	UpdateByPrimaryKey(userID string, name string) error
@@ -22,8 +22,8 @@ func NewUserRepository(db ConnectedSql) UserRepository {
 }
 
 // Insert データベースをレコードを登録する
-func (userRepository *userRepository) Insert(userID, authToken, name string) error {
-	_, err := userRepository.db.Exec("INSERT INTO user(user_id, auth_token, name) VALUES (?, ? ,?)", userID, authToken, name)
+func (userRepository *userRepository) Insert(user domain.User) error {
+	_, err := userRepository.db.Exec("INSERT INTO user(user_id, auth_token, name) VALUES (?, ? ,?)", user.UserID, user.AuthToken, user.Name)
 	if err != nil {
 		log.Println(err)
 		return err
