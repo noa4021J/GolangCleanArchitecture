@@ -1,7 +1,13 @@
 package controllers
 
 import (
+	"CleanArchitecture_SampleApp/interface/database"
+	"CleanArchitecture_SampleApp/interface/dcontext"
+	"CleanArchitecture_SampleApp/interface/network"
 	"CleanArchitecture_SampleApp/usecase/service"
+	"encoding/json"
+	"errors"
+	"log"
 )
 
 type userController struct {
@@ -9,28 +15,65 @@ type userController struct {
 }
 
 type UserController interface {
-	GetUser(userID *string) (*UserGetResponse, error)
-	UpdateUser(userID *string, updateRequest *UserUpdateRequest) error
+	GetUser(network.ApiResponser)
+	UpdateUser(network.ApiResponser)
 }
 
-func NewUserController(us service.UserService) UserController {
-	return &userController{userService: us}
-}
-
-func (uc *userController) GetUser(userID *string) (*UserGetResponse, error) {
-	user, err := uc.userService.GetUser(userID)
-	if err != nil {
-		return nil, err
+func NewUserController(db database.ConnectedSql) UserController {
+	return &userController{
+		userService: service.NewUserService(
+			database.NewUserRepository(db),
+		),
 	}
-	return &UserGetResponse{Name: user.Name}, nil
 }
 
-func (uc *userController) UpdateUser(userID *string, updateRequest *UserUpdateRequest) error {
-	err := uc.userService.UpdateUser(userID, &updateRequest.Name)
-	if err != nil {
-		return err
+func (uc *userController) GetUser(ar network.ApiResponser) {
+	// Contextから認証済みのユーザIDを取得
+	ctx := ar.GetRequestContext()
+	userID := dcontext.GetUserIDFromContext(ctx)
+	if len(userID) == 0 {
+		log.Println(errors.New("userID is empty"))
+		ar.InternalServerError("Internal Server Error")
+		return
 	}
-	return nil
+
+	user, err := uc.userService.GetUser(&userID)
+	if err != nil {
+		return
+	}
+
+	userGetResponse := UserGetResponse{
+		Name: user.Name,
+	}
+
+	ar.Success(userGetResponse)
+}
+
+func (uc *userController) UpdateUser(ar network.ApiResponser) {
+
+	var userUpdateRequest UserUpdateRequest
+	err := json.NewDecoder(ar.GetRequest().GetBody()).Decode(&userUpdateRequest)
+	if err != nil {
+		log.Printf("%+v\n", err)
+		ar.BadRequest("Invalid Request")
+		return
+	}
+
+	// Contextから認証済みのユーザIDを取得
+	ctx := ar.GetRequestContext()
+	userID := dcontext.GetUserIDFromContext(ctx)
+	if len(userID) == 0 {
+		log.Println(errors.New("userID is empty"))
+		ar.InternalServerError("Internal Server Error")
+		return
+	}
+
+	err = uc.userService.UpdateUser(&userID, &userUpdateRequest.Name)
+	if err != nil {
+		return
+	}
+
+	ar.Success(200)
 }
 
 type UserGetResponse struct {

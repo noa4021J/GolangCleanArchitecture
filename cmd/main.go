@@ -2,11 +2,10 @@ package main
 
 import (
 	"CleanArchitecture_SampleApp/config"
-	"CleanArchitecture_SampleApp/infrastructure/api/handler"
-	"CleanArchitecture_SampleApp/infrastructure/api/middleware"
-	"CleanArchitecture_SampleApp/infrastructure/api/router"
 	"CleanArchitecture_SampleApp/infrastructure/datastore"
+	"CleanArchitecture_SampleApp/infrastructure/router"
 	"CleanArchitecture_SampleApp/infrastructure/server"
+	"CleanArchitecture_SampleApp/interface/controllers"
 	"fmt"
 	"log"
 )
@@ -18,14 +17,12 @@ func main() {
 	// DBの起動
 	connectedDB := datastore.BootMysqlDB()
 	// intaractorを作成
-	interactor := handler.NewInteractor(connectedDB)
-	// Middlewareの起動
-	middleware := middleware.NewMiddleWare(connectedDB)
+	interactor := controllers.NewInteractor(connectedDB)
 	// AppHandlerの取得
-	appHandler := interactor.NewAppHandler()
+	appController := interactor.NewAppController()
 	// Routerの起動
 	serv := server.New()
-	router.BootRouter(serv, middleware, appHandler)
+	router.BootRouter(serv, appController)
 	// DBのClose
 	defer func() {
 		if err := connectedDB.DB.Close(); err != nil {

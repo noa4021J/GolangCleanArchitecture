@@ -1,7 +1,11 @@
 package controllers
 
 import (
+	"CleanArchitecture_SampleApp/interface/database"
+	"CleanArchitecture_SampleApp/interface/network"
 	"CleanArchitecture_SampleApp/usecase/service"
+	"encoding/json"
+	"log"
 )
 
 type authController struct {
@@ -9,20 +13,37 @@ type authController struct {
 }
 
 type AuthController interface {
-	CreateUser(newUser *AuthCreateRequest) (*AuthCreateResponse, error)
+	CreateUser(network.ApiResponser)
 }
 
-func NewAuthController(as service.AuthService) AuthController {
-	return &authController{authService: as}
-}
-
-//CreateUser
-func (ac *authController) CreateUser(newUser *AuthCreateRequest) (*AuthCreateResponse, error) {
-	authToken, err := ac.authService.CreateUser(&newUser.Name)
-	if err != nil {
-		return nil, err
+func NewAuthController(db database.ConnectedSql) AuthController {
+	return &authController{
+		authService: service.NewAuthService(
+			database.NewUserRepository(db),
+		),
 	}
-	return &AuthCreateResponse{Token: *authToken}, nil
+}
+
+func (ac *authController) CreateUser(ar network.ApiResponser) {
+
+	var authCreateRequest AuthCreateRequest
+	err := json.NewDecoder(ar.GetRequest().GetBody()).Decode(&authCreateRequest)
+	if err != nil {
+		log.Printf("%+v\n", err)
+		ar.BadRequest("Invalid Request")
+		return
+	}
+
+	authToken, err := ac.authService.CreateUser(&authCreateRequest.Name)
+	if err != nil {
+		return
+	}
+
+	authCreateResponse := AuthCreateResponse{
+		Token: *authToken,
+	}
+
+	ar.Success(authCreateResponse)
 }
 
 type AuthCreateRequest struct {

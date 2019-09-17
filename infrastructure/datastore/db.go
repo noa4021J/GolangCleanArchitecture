@@ -29,8 +29,7 @@ func BootMysqlDB() *ConnectedSql {
 		config.Conf.Database.Db,
 	)
 
-	// 接続情報は以下のように指定する.
-	// user:password@tcp(host:port)/database
+	// 接続情報
 	var err error
 	DB, err := sql.Open("mysql", connectionCmd)
 	if err != nil {
@@ -49,7 +48,6 @@ func BootMysqlDB() *ConnectedSql {
 	return &conn
 }
 
-//interface層で使用可能なsqlのクエリ操作定義
 func (conn *ConnectedSql) Exec(cmd string, args ...interface{}) (database.Result, error) {
 	result, err := conn.DB.Exec(cmd, args...)
 	if err != nil {
@@ -58,7 +56,6 @@ func (conn *ConnectedSql) Exec(cmd string, args ...interface{}) (database.Result
 	return &SqlResult{Result: result}, nil
 }
 
-//interface層で使用可能なsqlのクエリ操作定義
 func (conn *ConnectedSql) Query(cmd string, args ...interface{}) (database.Rows, error) {
 	rows, err := conn.DB.Query(cmd, args...)
 	if err != nil {
@@ -84,7 +81,6 @@ func (r *SqlResult) RowsAffected() (int64, error) {
 	return r.Result.RowsAffected()
 }
 
-//なぜポインタ型なのか？
 type SqlRows struct {
 	Rows *sql.Rows
 }
