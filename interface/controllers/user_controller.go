@@ -19,7 +19,7 @@ type UserController interface {
 	UpdateUser(network.ApiResponser)
 }
 
-func NewUserController(db database.ConnectedSql) UserController {
+func NewUserController(db database.ConnectedDB) UserController {
 	return &userController{
 		userService: service.NewUserService(
 			database.NewUserRepository(db),

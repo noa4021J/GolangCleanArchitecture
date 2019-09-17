@@ -16,7 +16,7 @@ type AuthController interface {
 	CreateUser(network.ApiResponser)
 }
 
-func NewAuthController(db database.ConnectedSql) AuthController {
+func NewAuthController(db database.ConnectedDB) AuthController {
 	return &authController{
 		authService: service.NewAuthService(
 			database.NewUserRepository(db),

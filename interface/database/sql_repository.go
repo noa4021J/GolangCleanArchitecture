@@ -1,6 +1,6 @@
 package database
 
-type ConnectedSql interface {
+type ConnectedDB interface {
 	Exec(string, ...interface{}) (Result, error)
 	Query(string, ...interface{}) (Rows, error)
 	QueryRow(string, ...interface{}) Row

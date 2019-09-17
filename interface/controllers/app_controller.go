@@ -7,14 +7,14 @@ import (
 )
 
 type interactor struct {
-	db database.ConnectedSql
+	db database.ConnectedDB
 }
 
 type Interactor interface {
 	NewAppController() AppController
 }
 
-func NewInteractor(db database.ConnectedSql) Interactor {
+func NewInteractor(db database.ConnectedDB) Interactor {
 	return &interactor{db: db}
 }
 

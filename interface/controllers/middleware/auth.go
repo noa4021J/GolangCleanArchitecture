@@ -16,7 +16,7 @@ type MiddleWare interface {
 	UserAuthorize(ar network.ApiResponser) network.ApiResponser
 }
 
-func NewMiddleWare(db database.ConnectedSql) MiddleWare {
+func NewMiddleWare(db database.ConnectedDB) MiddleWare {
 	return &middleware{
 		userRepository: database.NewUserRepository(db),
 	}

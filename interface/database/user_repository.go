@@ -6,7 +6,7 @@ import (
 )
 
 type userRepository struct {
-	db ConnectedSql
+	db ConnectedDB
 }
 
 type UserRepository interface {
@@ -16,7 +16,7 @@ type UserRepository interface {
 	UpdateByUserID(userID string, name string) error
 }
 
-func NewUserRepository(db ConnectedSql) UserRepository {
+func NewUserRepository(db ConnectedDB) UserRepository {
 	return &userRepository{db}
 }
 
