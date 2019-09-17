@@ -20,7 +20,7 @@ func NewUserService(ur repository.UserRepository) UserService {
 
 func (userService *userService) GetUser(userID *string) (*domain.User, error) {
 
-	user, err := userService.UserRepository.SelectByPrimaryKey(*userID)
+	user, err := userService.UserRepository.FindByUserID(*userID)
 	if err != nil {
 		return nil, err
 	}
@@ -30,12 +30,12 @@ func (userService *userService) GetUser(userID *string) (*domain.User, error) {
 
 func (userService *userService) UpdateUser(userID, newName *string) error {
 
-	err := userService.UserRepository.UpdateByPrimaryKey(*userID, *newName)
+	err := userService.UserRepository.UpdateByUserID(*userID, *newName)
 	if err != nil {
 		return err
 	}
 
-	_, err = userService.UserRepository.SelectByPrimaryKey(*userID)
+	_, err = userService.UserRepository.FindByUserID(*userID)
 	if err != nil {
 		return err
 	}

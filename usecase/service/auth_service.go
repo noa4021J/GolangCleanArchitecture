@@ -44,7 +44,7 @@ func (authService *authService) CreateUser(userName *string) (*string, error) {
 	}
 
 	// データベースにユーザデータを登録する
-	err = authService.UserRepository.Insert(user)
+	err = authService.UserRepository.Store(user)
 	if err != nil {
 		log.Println(err)
 		return nil, err
