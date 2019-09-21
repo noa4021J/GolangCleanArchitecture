@@ -1,5 +1,5 @@
 ## GolangCleanArchitecture SampleApp
-This is an simple example of Golang application implemented in the Clean Architecture.
+This is a simple example of Golang application implemented in the Clean Architecture.
 
 （GolangによるCleanArchitectureのサンプルアプリです）
 
